@@ -25,8 +25,9 @@ class Game:
         self.button_pad = button_pad
         self.button_pad.assign_button_events(self.when_pressed, self.when_held, self.when_released)
         self.buttons: typing.List[ButtonInfo] = []
-        self.sounds: typing.List[str] = []
+        self.soundslist: typing.List[str] = []
         self.colors: typing.List[str] = []
+        self.sounds: typing.List[str] = []
         self.speaker = library.speaker.Speaker()
         self.initialize_button_pad()
         self.started = False
@@ -86,16 +87,12 @@ class Game:
         colors_constant = ["aqua", "white", "red", "lime", "brown", "magenta", "orange", "midnightblue"]
         colorslist = colors_constant * 2
         random.shuffle(colorslist)
-        for i in range (len(colorslist)):
-            button = self.button_pad.get_button(i + 1)
-            self.button_pad.set_button_led_color(button, colorslist[i])
-            time.sleep(0.005)
-            print(str(colorslist[i]) + " " + str(i +1) )
-        # self.button_pad.clear_button_pad()
+        
+
 
 
         # sounds are available in the sounds directory
-        self.sounds = [
+        self.soundslist = [
             "thunder2",
             "fart_z",
             "baby_x",
@@ -105,7 +102,51 @@ class Game:
             "bloop_x",
             "car_horn_x",
         ]
+        random.shuffle(self.sounds)
+
         # TODO: assign to buttons
+        # button1 = ButtonInfo("Alice", 20)
+        # print(self.buttons)
+
+        # keys = ['color', 'sound']
+        n=16
+        buttonsdict = [{'color':'', 'sound':''}for i in range(n)]
+        uniquecolor = 0
+
+        # create dicitonary with randomized colors and unique sounds
+        for i in range (len(colorslist)):
+            
+            # code to add colors
+            button = self.button_pad.get_button(i + 1)
+            self.button_pad.set_button_led_color(button, colorslist[i])
+
+            currentcolor = colorslist[i]
+
+            # adding color to dictionary
+            buttonsdict[i]["color"] = currentcolor
+            self.colors.append(currentcolor)
+            
+            # looping though color constants to check for unique colors
+            for j in range(len(colors_constant)):
+                print(currentcolor,colors_constant[j])
+                if currentcolor == colors_constant[j]:
+                    print("match found")
+                    
+                    uniquecolor = j
+                    print(uniquecolor)
+                    break
+
+            buttonsdict[i]["sound"] = str(self.soundslist[uniquecolor])
+            self.sounds.append(str(self.soundslist[uniquecolor]))
+
+            print(self.colors)
+            print(self.sounds)
+
+
+        
+        # print(buttonsdict)
+
+
 
     def _start_game(self):
         self.thread = threading.Thread(target=self._background_logic_checker)
