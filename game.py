@@ -54,6 +54,11 @@ class Game:
         """The sound that is played when the game ends."""
         # OPTIONAL: change this to a different sound if you want
         return "end_of_game"
+    
+    @property
+    def start_of_game_sound(self):
+        return "drum_roll2"
+
 
     def _background_logic_checker(self):
         count = 0
@@ -65,12 +70,30 @@ class Game:
             print(f"Handling button {button_number}")
 
             # Example logic: light up the button that was pressed with a constant color
-            button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "black")
+            # button = self.button_pad.get_button(button_number)
+            # self.button_pad.set_button_led_color(button, "black")
 #            self.speaker.play_preloaded_wav("gasp_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
  #           self.button_pad.get_button(5).color
-            
+            if button_number == 17:
+                self.counter = 0
+
+                # self.button_pad.cleanup()
+                self.initialize_button_pad()
+                continue
+            if button_number == 18:
+                self.counter = 0
+                
+                for i in range(len(self.colors)):
+                    self.button_pad.set_button_led_color(self.button_pad.get_button(i+1), self.colors[i])
+                self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
+                
+                # self.button_pad.cleanup()
+                self.initialize_button_pad()
+                continue
+                
+                
+                    
             if self.counter == 1:
                 first_button = button_number
                 print(first_button)
@@ -109,6 +132,9 @@ class Game:
 
     def when_held(self, button):
         # TODO: this is called when a button is held. Add what you need to here
+        _logger.info(f"Button {button.pin.info.number} held")
+        self.queue.put(button.pin.info.number + 16)
+
         pass
 
     def when_released(self, button):
@@ -116,6 +142,8 @@ class Game:
         pass
 
     def initialize_button_pad(self):
+        self.colors = []
+        self.sounds = []
         self.button_pad.clear_button_pad()
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
         colors_constant = ["aqua", "white", "red", "lime", "brown", "magenta", "orange", "midnightblue"]
@@ -185,6 +213,7 @@ class Game:
 
 
     def _start_game(self):
+        self.speaker.play_preloaded_wav(self.start_of_game_sound, wait_until_done=False)
         self.thread = threading.Thread(target=self._background_logic_checker)
         self.thread.start()
         # TODO: play a sound to start the game
