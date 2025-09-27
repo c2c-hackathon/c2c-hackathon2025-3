@@ -3,6 +3,7 @@ import queue
 import threading
 import time
 import typing
+import random
 from dataclasses import dataclass
 
 import library
@@ -60,13 +61,15 @@ class Game:
 
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number)
-            self.button_pad.set_button_led_color(button, "red")
+            # self.button_pad.set_button_led_color(button, button.button_color)
             self.speaker.play_preloaded_wav("bloop_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
 
     def when_pressed(self, button):
         # TODO: this is called when a button is pressed. Add what you need to here
         _logger.info(f"Button {button.pin.info.number} pressed")
+        # self.button_pad.clear_button(button)
+        # print(button.pin.color)
         self.queue.put(button.pin.info.number)
 
     def when_held(self, button):
@@ -80,6 +83,17 @@ class Game:
     def initialize_button_pad(self):
         self.button_pad.clear_button_pad()
         # TODO: Set all buttons to a color, List of colors to choose from: https://github.com/waveform80/colorzero/blob/master/colorzero/tables.py#L315
+        colors_constant = ["aqua", "white", "red", "lime", "brown", "magenta", "orange", "midnightblue"]
+        colorslist = colors_constant * 2
+        random.shuffle(colorslist)
+        for i in range (len(colorslist)):
+            button = self.button_pad.get_button(i + 1)
+            self.button_pad.set_button_led_color(button, colorslist[i])
+            time.sleep(0.005)
+            print(str(colorslist[i]) + " " + str(i +1) )
+        # self.button_pad.clear_button_pad()
+
+
         # sounds are available in the sounds directory
         self.sounds = [
             "thunder2",
