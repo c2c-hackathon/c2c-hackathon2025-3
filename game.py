@@ -56,6 +56,7 @@ class Game:
         return "end_of_game"
 
     def _background_logic_checker(self):
+        count = 0
         while self.play_game:
             time.sleep(0.005)  # Prevents busy-waiting
             if self.queue.empty():
@@ -66,10 +67,10 @@ class Game:
             # Example logic: light up the button that was pressed with a constant color
             button = self.button_pad.get_button(button_number)
             self.button_pad.set_button_led_color(button, "black")
-            self.speaker.play_preloaded_wav("gasp_x", wait_until_done=True)  # Play a sound when button is pressed
+#            self.speaker.play_preloaded_wav("gasp_x", wait_until_done=True)  # Play a sound when button is pressed
             # TODO: check your game state, and update things
  #           self.button_pad.get_button(5).color
-
+            
             if self.counter == 1:
                 first_button = button_number
                 print(first_button)
@@ -77,12 +78,19 @@ class Game:
                 self.button_pad.set_button_led_color(self.button_pad.get_button(first_button), self.colors[first_button-1])
                 self.speaker.play_preloaded_wav(self.sounds[first_button-1], wait_until_done=False) 
 
-            elif (self.counter == 2) and ((self.colors[button_number-1]) == (self.colors[first_button-1])):
+            elif (self.counter == 2) and ((self.colors[button_number-1]) == (self.colors[first_button-1])) and button_number != first_button:
                 self.button_pad.set_button_led_color(self.button_pad.get_button(button_number), self.colors[button_number-1])
                 self.speaker.play_preloaded_wav(self.sounds[button_number-1], wait_until_done=False) 
+                self.speaker.play_preloaded_wav(self.correct_sound, wait_until_done=False)
+
                 self.counter = 0
                 print(first_button)
                 print(button_number)
+                count += 1
+                print(count)
+                if count == 8:
+                    self.speaker.play_preloaded_wav(self.end_of_game_sound, wait_until_done=True)
+
             else:
                 self.counter = 0
                 self.button_pad.set_button_led_color(self.button_pad.get_button(button_number), self.colors[button_number-1])
